@@ -118,61 +118,27 @@ async function handleExecuteTask(task: string) {
 }
 
 async function handleReplay(actions: RecordedAction[]) {
-  chrome.runtime.sendMessage({
-    type: 'AGENT_STATUS',
-    status: 'running',
-  } as MessageType)
-
-  for (const action of actions) {
-    try {
-      const el = document.querySelector(action.selector)
-      if (!el) {
-        chrome.runtime.sendMessage({
-          type: 'AGENT_ACTIVITY',
-          activity: { type: 'error', message: `Element not found: ${action.selector}` },
-        } as MessageType)
-        continue
-      }
-
-      chrome.runtime.sendMessage({
-        type: 'AGENT_ACTIVITY',
-        activity: { type: 'executing', tool: action.type, input: action.description },
-      } as MessageType)
-
-      switch (action.type) {
-        case 'click':
-          (el as HTMLElement).click()
-          break
-        case 'input':
-          (el as HTMLInputElement).value = action.value ?? ''
-          el.dispatchEvent(new Event('input', { bubbles: true }))
-          break
-        case 'select':
-          (el as HTMLSelectElement).value = action.value ?? ''
-          el.dispatchEvent(new Event('change', { bubbles: true }))
-          break
-      }
-
-      chrome.runtime.sendMessage({
-        type: 'AGENT_ACTIVITY',
-        activity: { type: 'executed', tool: action.type, input: action.description, output: 'OK', duration: 0 },
-      } as MessageType)
-
-      // Small delay between actions for visibility
-      await new Promise((r) => setTimeout(r, 300))
-    } catch (err: any) {
-      chrome.runtime.sendMessage({
-        type: 'AGENT_ACTIVITY',
-        activity: { type: 'error', message: err.message },
-      } as MessageType)
+  // Convert recorded actions into a single natural language instruction
+  // and let the AI agent handle element matching intelligently
+  const steps = actions.map((a, i) => {
+    switch (a.type) {
+      case 'click':
+        return `Step ${i + 1}: Click the element described as: ${a.elementDescription}. (${a.description})`
+      case 'input':
+        return `Step ${i + 1}: Type "${a.value}" into the element described as: ${a.elementDescription}. (${a.description})`
+      case 'select':
+        return `Step ${i + 1}: Select "${a.value}" in the element described as: ${a.elementDescription}. (${a.description})`
+      case 'scroll':
+        return `Step ${i + 1}: Scroll the page. (${a.description})`
+      default:
+        return `Step ${i + 1}: ${a.description}`
     }
-  }
+  })
 
-  chrome.runtime.sendMessage({
-    type: 'AGENT_RESULT',
-    success: true,
-    data: 'Replay completed',
-  } as MessageType)
+  const task = `Execute the following steps in order:\n${steps.join('\n')}`
+
+  // Use the AI agent for intelligent replay
+  await handleExecuteTask(task)
 }
 
 console.log('[Page Agent] Content script loaded')

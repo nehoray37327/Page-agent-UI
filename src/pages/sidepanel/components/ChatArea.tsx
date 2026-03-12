@@ -3,6 +3,7 @@ import type { ChatMessage } from '../SidePanel'
 import type { Locale } from '../../../shared/i18n'
 import { useT } from '../../../shared/i18n'
 import AgentStep from './AgentStep'
+import Markdown from './Markdown'
 
 interface ChatAreaProps {
   messages: ChatMessage[]
@@ -66,7 +67,9 @@ export default function ChatArea({ messages, status, language }: ChatAreaProps) 
                   </svg>
                 )}
               </span>
-              <span>{msg.content}</span>
+              <div className="result-text">
+                <Markdown text={msg.content ?? ''} />
+              </div>
             </div>
           )
         }

@@ -48,18 +48,17 @@ export const PROVIDER_PRESETS: Record<string, Partial<LLMConfig>> = {
 // ===== Preferences =====
 export interface Preferences {
   language: 'zh-CN' | 'en-US'
-  panelPosition: 'left' | 'right'
 }
 
 export const DEFAULT_PREFERENCES: Preferences = {
   language: 'zh-CN',
-  panelPosition: 'right',
 }
 
 // ===== Recording =====
 export interface RecordedAction {
   type: 'click' | 'input' | 'select' | 'scroll'
   selector: string
+  elementDescription: string  // semantic description for AI matching
   value?: string
   timestamp: number
   description: string

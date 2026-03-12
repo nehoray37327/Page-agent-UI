@@ -4,33 +4,78 @@ let isRecording = false
 let actions: RecordedAction[] = []
 let startTime = 0
 
+/**
+ * Generate a human-readable description of an element.
+ * This description is used by the AI agent to re-find the element during replay,
+ * so it should be semantic and resilient to DOM changes.
+ */
+function describeElement(el: Element): string {
+  const tag = el.tagName.toLowerCase()
+  const parts: string[] = []
+
+  // Role or tag
+  const role = el.getAttribute('role')
+  if (role) parts.push(`[role="${role}"]`)
+
+  // Aria label
+  const ariaLabel = el.getAttribute('aria-label')
+  if (ariaLabel) parts.push(`aria-label="${ariaLabel}"`)
+
+  // Text content (most important for AI matching)
+  const text = el.textContent?.trim().slice(0, 60)
+  if (text) parts.push(`text="${text}"`)
+
+  // Name attribute
+  const name = el.getAttribute('name')
+  if (name) parts.push(`name="${name}"`)
+
+  // Placeholder
+  const placeholder = el.getAttribute('placeholder')
+  if (placeholder) parts.push(`placeholder="${placeholder}"`)
+
+  // Type for inputs
+  if (tag === 'input') {
+    const type = el.getAttribute('type') || 'text'
+    parts.push(`type="${type}"`)
+  }
+
+  // ID if present
+  if (el.id) parts.push(`id="${el.id}"`)
+
+  // Class names (first 2)
+  const classes = Array.from(el.classList).slice(0, 2).join(' ')
+  if (classes) parts.push(`class="${classes}"`)
+
+  const descriptor = parts.length > 0 ? parts.join(', ') : tag
+  return `<${tag}> ${descriptor}`
+}
+
+/**
+ * Generate a simple, valid CSS selector for an element (best-effort).
+ * Used as a fallback hint, NOT the primary matching strategy.
+ */
 function generateSelector(el: Element): string {
   if (el.id) return `#${el.id}`
 
   const tag = el.tagName.toLowerCase()
 
-  // Try aria-label
+  // aria-label
   const ariaLabel = el.getAttribute('aria-label')
-  if (ariaLabel) return `${tag}[aria-label="${ariaLabel}"]`
+  if (ariaLabel) return `${tag}[aria-label="${CSS.escape(ariaLabel)}"]`
 
-  // Try name attribute
+  // name
   const name = el.getAttribute('name')
-  if (name) return `${tag}[name="${name}"]`
+  if (name) return `${tag}[name="${CSS.escape(name)}"]`
 
-  // Try type + placeholder for inputs
+  // input with type + placeholder
   if (tag === 'input') {
     const type = el.getAttribute('type') || 'text'
     const placeholder = el.getAttribute('placeholder')
-    if (placeholder) return `input[type="${type}"][placeholder="${placeholder}"]`
+    if (placeholder) return `input[type="${type}"][placeholder="${CSS.escape(placeholder)}"]`
+    return `input[type="${type}"]`
   }
 
-  // Try text content for buttons/links
-  if (['button', 'a'].includes(tag)) {
-    const text = el.textContent?.trim().slice(0, 30)
-    if (text) return `${tag}:has-text("${text}")`
-  }
-
-  // Fallback: nth-child path
+  // nth-of-type path (fallback)
   const parts: string[] = []
   let current: Element | null = el
   while (current && current !== document.body) {
@@ -40,33 +85,38 @@ function generateSelector(el: Element): string {
     const siblings = Array.from(parent.children).filter(
       (c: Element) => c.tagName === cur.tagName
     )
-    const index = siblings.indexOf(current) + 1
-    parts.unshift(`${current.tagName.toLowerCase()}:nth-of-type(${index})`)
+    if (siblings.length === 1) {
+      parts.unshift(cur.tagName.toLowerCase())
+    } else {
+      const index = siblings.indexOf(cur) + 1
+      parts.unshift(`${cur.tagName.toLowerCase()}:nth-of-type(${index})`)
+    }
     current = parent
+    if (parts.length >= 4) break // limit depth
   }
   return parts.join(' > ')
 }
 
 function describeAction(type: string, el: Element, value?: string): string {
-  const tag = el.tagName.toLowerCase()
-  const text = el.textContent?.trim().slice(0, 30) ?? ''
+  const text = el.textContent?.trim().slice(0, 40) ?? ''
   const label =
     el.getAttribute('aria-label') ||
     el.getAttribute('placeholder') ||
     el.getAttribute('name') ||
+    el.getAttribute('title') ||
     text
 
   switch (type) {
     case 'click':
-      return `Click "${label}" (${tag})`
+      return `Click "${label}"`
     case 'input':
-      return `Type "${value?.slice(0, 20)}" into "${label}"`
+      return `Type "${value?.slice(0, 20) ?? ''}" into "${label}"`
     case 'select':
       return `Select "${value}" in "${label}"`
     case 'scroll':
       return `Scroll page`
     default:
-      return `${type} on ${tag}`
+      return `${type} on "${label}"`
   }
 }
 
@@ -77,6 +127,7 @@ function handleClick(e: MouseEvent) {
   actions.push({
     type: 'click',
     selector: generateSelector(el),
+    elementDescription: describeElement(el),
     timestamp: Date.now() - startTime,
     description: describeAction('click', el),
   })
@@ -86,9 +137,17 @@ function handleInput(e: Event) {
   if (!isRecording) return
   const el = e.target as HTMLInputElement
   if (!el) return
+  // Debounce: update last action if same element
+  const last = actions[actions.length - 1]
+  if (last && last.type === 'input' && last.selector === generateSelector(el)) {
+    last.value = el.value
+    last.description = describeAction('input', el, el.value)
+    return
+  }
   actions.push({
     type: 'input',
     selector: generateSelector(el),
+    elementDescription: describeElement(el),
     value: el.value,
     timestamp: Date.now() - startTime,
     description: describeAction('input', el, el.value),
@@ -102,6 +161,7 @@ function handleChange(e: Event) {
   actions.push({
     type: 'select',
     selector: generateSelector(el),
+    elementDescription: describeElement(el),
     value: el.value,
     timestamp: Date.now() - startTime,
     description: describeAction('select', el, el.value),

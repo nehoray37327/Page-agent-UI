@@ -40,9 +40,6 @@ export default {
   maxSteps: '最大步数',
   preferences: '偏好设置',
   language: '语言',
-  panelPosition: '面板位置',
-  left: '左',
-  right: '右',
   save: '保存',
   resetDefaults: '恢复默认',
   saved: '已保存',
@@ -53,6 +50,7 @@ export default {
   play: '回放',
   delete: '删除',
   rename: '重命名',
+  doubleClickRename: '双击重命名',
 
   // Popup
   openPanel: '打开面板',

@@ -40,9 +40,6 @@ export default {
   maxSteps: 'Max Steps',
   preferences: 'Preferences',
   language: 'Language',
-  panelPosition: 'Panel Position',
-  left: 'Left',
-  right: 'Right',
   save: 'Save',
   resetDefaults: 'Reset to Defaults',
   saved: 'Saved',
@@ -53,6 +50,7 @@ export default {
   play: 'Play',
   delete: 'Delete',
   rename: 'Rename',
+  doubleClickRename: 'Double-click to rename',
 
   // Popup
   openPanel: 'Open Panel',

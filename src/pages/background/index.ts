@@ -33,19 +33,12 @@ chrome.runtime.onMessage.addListener((msg: MessageType, sender, sendResponse) =>
     }
   }
 
-  // Messages from Content Script → forward to Side Panel & handle recording
+  // Messages from Content Script → only handle recording storage
+  // Note: AGENT_STATUS, AGENT_ACTIVITY, AGENT_RESULT are already received
+  // directly by the Side Panel via chrome.runtime.sendMessage(), so we
+  // do NOT re-forward them here (that would cause duplicates).
   if (sender.tab) {
     switch (msg.type) {
-      case 'AGENT_STATUS':
-      case 'AGENT_ACTIVITY':
-      case 'AGENT_RESULT':
-        // Forward to all runtime listeners (Side Panel)
-        chrome.runtime.sendMessage(msg).catch(() => {
-          // Side panel might not be open yet
-        })
-        sendResponse({ ok: true })
-        return true
-
       case 'RECORDING_DATA':
         handleRecordingComplete(msg.actions)
         sendResponse({ ok: true })

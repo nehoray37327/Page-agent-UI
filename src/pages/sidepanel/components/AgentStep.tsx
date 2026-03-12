@@ -43,15 +43,17 @@ export default function AgentStep({ step, language }: AgentStepProps) {
 
   if (step.type === 'executed') {
     return (
-      <div className="step step-done">
-        <span className="step-icon">
-          <svg className="icon-sm" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M3 7.5l2.5 2.5L11 4" />
-          </svg>
-        </span>
-        <span className="step-text">
-          {step.tool}{step.duration ? ` (${step.duration}ms)` : ''}
-        </span>
+      <div className="step-wrapper">
+        <div className="step step-done">
+          <span className="step-icon">
+            <svg className="icon-sm" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M3 7.5l2.5 2.5L11 4" />
+            </svg>
+          </span>
+          <span className="step-text">
+            {step.tool}{step.duration ? ` (${step.duration}ms)` : ''}
+          </span>
+        </div>
         {step.output && (
           <div className="step-thought">{step.output}</div>
         )}

@@ -7,6 +7,7 @@ import StatusBar from './components/StatusBar'
 import ChatArea from './components/ChatArea'
 import InputBar from './components/InputBar'
 import BottomBar from './components/BottomBar'
+import SettingsView from './components/SettingsView'
 import './styles/sidepanel.css'
 
 export interface ChatMessage {
@@ -33,6 +34,7 @@ export default function SidePanel() {
   const [config, setConfig] = useState<LLMConfig | null>(null)
   const [language, setLanguage] = useState<Locale>('zh-CN')
   const [isRecording, setIsRecording] = useState(false)
+  const [view, setView] = useState<'chat' | 'settings'>('chat')
 
   // Load config on mount
   useEffect(() => {
@@ -140,12 +142,43 @@ export default function SidePanel() {
   }, [isRecording])
 
   const handleSettings = useCallback(() => {
-    chrome.runtime.openOptionsPage()
+    setView('settings')
   }, [])
 
+  const handleBackFromSettings = useCallback(() => {
+    setView('chat')
+  }, [])
+
+  const handleClear = useCallback(() => {
+    setMessages([])
+    setStatus('idle')
+  }, [])
+
+  const handleLanguageChange = useCallback((locale: Locale) => {
+    setLanguage(locale)
+    setLocale(locale)
+  }, [])
+
+  const handleConfigChange = useCallback((newConfig: LLMConfig) => {
+    setConfig(newConfig)
+  }, [])
+
+  // Settings view (replaces entire panel)
+  if (view === 'settings') {
+    return (
+      <SettingsView
+        language={language}
+        onBack={handleBackFromSettings}
+        onLanguageChange={handleLanguageChange}
+        onConfigChange={handleConfigChange}
+      />
+    )
+  }
+
+  // Chat view (default)
   return (
     <div className="side-panel">
-      <Header onSettings={handleSettings} />
+      <Header onSettings={handleSettings} onClear={handleClear} />
       <StatusBar model={config?.model ?? '—'} connected={!!config} />
       <ChatArea messages={messages} status={status} language={language} />
       <InputBar
