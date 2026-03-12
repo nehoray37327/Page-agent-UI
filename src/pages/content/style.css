@@ -1,5 +1,4 @@
-@import "tailwindcss";
-
-.your-class {
-    color: aliceblue;
+/* Content script styles — minimal, just hide the injected root */
+#__root {
+  display: none;
 }
