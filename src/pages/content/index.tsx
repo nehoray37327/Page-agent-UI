@@ -129,7 +129,7 @@ async function handleReplay(actions: RecordedAction[]) {
       case 'select':
         return `Step ${i + 1}: Select "${a.value}" in the element described as: ${a.elementDescription}. (${a.description})`
       case 'scroll':
-        return `Step ${i + 1}: Scroll the page. (${a.description})`
+        return `Step ${i + 1}: Scroll the element described as: ${a.elementDescription}. (${a.description})`
       default:
         return `Step ${i + 1}: ${a.description}`
     }

@@ -59,3 +59,15 @@ export async function updateRecording(id: string, updates: Partial<Recording>): 
     await chrome.storage.local.set({ [KEYS.recordings]: recordings })
   }
 }
+
+// ===== Quick Actions =====
+import { QuickAction, DEFAULT_QUICK_ACTIONS } from './types'
+
+export async function getQuickActions(): Promise<QuickAction[]> {
+  const result = await chrome.storage.local.get(KEYS.quickActions)
+  return result[KEYS.quickActions] ?? DEFAULT_QUICK_ACTIONS
+}
+
+export async function setQuickActions(actions: QuickAction[]): Promise<void> {
+  await chrome.storage.local.set({ [KEYS.quickActions]: actions })
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { t, setLocale, type Locale } from '../../shared/i18n'
-import { getPreferences, getLLMConfig } from '../../shared/storage'
-import type { AgentActivityData, HistoryItem, MessageType, LLMConfig } from '../../shared/types'
+import { getPreferences, getLLMConfig, getQuickActions } from '../../shared/storage'
+import type { AgentActivityData, HistoryItem, MessageType, LLMConfig, QuickAction } from '../../shared/types'
 import Header from './components/Header'
 import StatusBar from './components/StatusBar'
 import ChatArea from './components/ChatArea'
@@ -34,6 +34,7 @@ export default function SidePanel() {
   const [config, setConfig] = useState<LLMConfig | null>(null)
   const [language, setLanguage] = useState<Locale>('zh-CN')
   const [isRecording, setIsRecording] = useState(false)
+  const [quickActions, setQuickActions] = useState<QuickAction[]>([])
   const [view, setView] = useState<'chat' | 'settings'>('chat')
 
   // Load config on mount
@@ -41,9 +42,11 @@ export default function SidePanel() {
     async function init() {
       const prefs = await getPreferences()
       const llm = await getLLMConfig()
+      const actions = await getQuickActions()
       setLanguage(prefs.language)
       setLocale(prefs.language)
       setConfig(llm)
+      setQuickActions(actions)
     }
     init()
   }, [])
@@ -168,9 +171,11 @@ export default function SidePanel() {
     return (
       <SettingsView
         language={language}
+        quickActions={quickActions}
         onBack={handleBackFromSettings}
         onLanguageChange={handleLanguageChange}
         onConfigChange={handleConfigChange}
+        onQuickActionsChange={setQuickActions}
       />
     )
   }
@@ -190,6 +195,7 @@ export default function SidePanel() {
       <BottomBar
         language={language}
         isRecording={isRecording}
+        quickActions={quickActions}
         onQuickAction={handleQuickAction}
         onRecord={handleRecord}
       />

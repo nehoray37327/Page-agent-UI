@@ -1,181 +1,232 @@
-<div align="center">
-<img src="public/icon-128.png" alt="logo"/>
-<h1> Minimalist Chrome/Firefox Extension Boilerplate with<br/>React + Vite + TypeScript + TailwindCSS</h1>
+# Page Agent UI
 
-<h5>
-This template repository is a side product of my Chrome Extension <a target="_blank" rel="noopener noreferrer" href="https://chrome.google.com/webstore/detail/supatabs/icbcnjlaegndjabnjbaeihnnmidbfigk">Supatabs</a>.
-<br />
-If you tend to have tons of tabs open, or are a OneTab user, make sure to check it out <a target="_blank" rel="noopener noreferrer" href="https://chrome.google.com/webstore/detail/supatabs/icbcnjlaegndjabnjbaeihnnmidbfigk">here</a>!
-</h5>
+`Page Agent UI` 是一个基于浏览器侧边栏的网页自动化扩展界面。用户可以在当前页面中直接输入自然语言指令，由 AI Agent 结合页面上下文完成点击、输入、滚动、读取页面等操作。
 
-<h5>Supatabs is an example and showcase of what you can develop with this template. (anything you want, really 🚀)</h5>
+## 核心能力
 
-</div>
+- 在 Side Panel 中输入自然语言任务，并在当前网页执行自动化操作
+- 实时展示 Agent 状态、执行步骤和最终结果
+- 支持快捷指令，常用任务可以一键发送
+- 支持页面操作录制，并将录制结果保存到本地
+- 支持回放录制任务，回放时会转成自然语言步骤再交给 Agent 执行
+- 支持中英文界面切换
+- 支持多种模型提供方预设：`Qwen`、`OpenAI`、`DeepSeek`、`Ollama`、`Custom`
 
-## Table of Contents
+## 适用场景
 
-- [Intro](#intro)
-- [Features](#features)
-- [Usage](#usage)
-  - [Getting Started](#gettingStarted) 
-  - [Customization](#customization)
-  - [Publish](#publish)
-- [Tech Docs](#tech)
-- [Credit](#credit)
-- [Contributing](#contributing)
+- 自动填写网页表单
+- 按自然语言执行网页流程
+- 阅读并总结当前页面内容
+- 录制一段网页操作，后续重复回放
+- 为内部工具或垂直业务封装专用网页 Agent 扩展
 
+## 技术栈
 
-## Intro <a name="intro"></a>
-This boilerplate is meant to be a minimal quick start for creating chrome/firefox extensions using React, Typescript and Tailwind CSS.
+- React 19
+- TypeScript
+- Vite 6
+- Tailwind CSS 4
+- Chrome Extension Manifest V3
+- `webextension-polyfill`
+- `page-agent`
 
-It includes all possible pages such as **new tab**, **dev panel**, **pop up**, etc., as well as corresponding manifest settings by default.
-You will likely have to customize/delete some of the pages (see docs below).
+## 项目结构
 
-You can build dist files for both Chrome and Firefox with manifest v3.
-
-If you are looking for a React focused way to access the local storage, I also implemented a chrome local/sync storage hook. The hook works
-well with this template. [Check it out here](https://gist.github.com/JohnBra/c81451ea7bc9e77f8021beb4f198ab96).
-
-## Features <a name="features"></a>
-- [React 19](https://reactjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS 4](https://tailwindcss.com/)
-- [i18n (optional)](https://developer.chrome.com/docs/extensions/reference/api/i18n)
-- [Cross browser development with polyfill (optional)](https://github.com/mozilla/webextension-polyfill?tab=readme-ov-file#basic-setup-with-module-bundlers)
-- [ESLint](https://eslint.org/)
-- [Chrome Extension Manifest Version 3](https://developer.chrome.com/docs/extensions/mv3/intro/)
-- [Github Action](https://github.com/JohnBra/vite-web-extension/actions/workflows/ci.yml) to build and zip your extension (manual trigger)
-
-## Usage <a name="usage"></a>
-
-### Getting Started <a name="gettingStarted"></a>
-
-#### Developing and building
-This template comes with build configs for both Chrome and Firefox. Running
-`dev` or `build` commands without specifying the browser target will build
-for Chrome by default.
-
-1. Clone this repository or click "Use this template"
-2. Change `name` and `description` in `manifest.json`
-3. Run `yarn` or `npm i` (check your node version >= 16)
-4. Run `yarn dev[:chrome|:firefox]`, or `npm run dev[:chrome|:firefox]`
-
-Running a `dev` command will build your extension and watch for changes in the 
-source files. Changing the source files will refresh the corresponding 
-`dist_<chrome|firefox>` folder.
-
-To create an optimized production build, run `yarn build[:chrome|:firefox]`, or
-`npm run build[:chrome|:firefox]`.
-
-#### Load your extension
-For Chrome
-1. Open - Chrome browser
-2. Access - [chrome://extensions](chrome://extensions)
-3. Tick - Developer mode
-4. Find - Load unpacked extension
-5. Select - `dist_chrome` folder in this project (after dev or build)
-
-For Firefox
-1. Open - Firefox browser
-2. Access - [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
-3. Click - Load temporary Add-on
-4. Select - any file in `dist_firefox` folder (i.e. `manifest.json`) in this project (after dev or build)
-
-### Customization <a name="customization"></a>
-
-#### Adding / removing pages
-The template includes source code for **all** of the extension pages (i.e. New Tab, Dev Tools, Popup, Side Panel
-etc.). You will likely have to customize it to fit your needs.
-
-E.g. you don't want the newtab page to activate whenever you open a new tab:
-1. remove the directory `newtab` and its contents in `src/pages`
-2. remove `chrome_url_overrides: { newtab: 'src/pages/newtab/index.html' },` in `manifest.json`
-
-Some pages like the "Side Panel" don't work the exact same in Chrome and Firefox. While this template includes
-the source code for the side panel, it won't automatically be included in the dist file to prevent cross browser
-build warnings.
-
-To include the side panel for Chrome add the following to the `manifest.json`:
-
-```typescript
-{
-  "manifest_version": 3,
-  // ...
-  "permissions": [
-    "activeTab",
-    "sidePanel" // <-- permission for sidepanel
-  ],
-  // ...
-  "side_panel": {
-    "default_path": "src/pages/panel/index.html" // <-- tell vite to include it in the build files
-  },
-  // ...
-}
+```text
+src/
+  pages/
+    background/   后台服务，负责转发消息与 side panel 打开逻辑
+    content/      内容脚本，负责初始化 Agent 并在页面执行任务
+    popup/        扩展图标弹窗
+    sidepanel/    主交互界面，聊天、状态、快捷指令、设置入口
+    options/      独立设置页，管理模型配置和录制记录
+  shared/
+    i18n/         中英文文案
+    recorder/     用户操作录制逻辑
+    storage.ts    本地配置、快捷指令、录制记录存储
+    types/        共享类型定义
+public/
+  图标与注入样式
 ```
 
-If you need to declare pages in addition to the manifest pages, e.g. a custom `app` page, create a 
-new folder in the `pages` directory and add the corresponding `.html`, `.tsx` and `.css` 
-files (see `options/*` for an example to copy). Then include the root html in the `vite.config.base.ts` 
-file under `build.rollupOptions.input` like so:
+## 工作方式
 
-```typescript
-// ...
-build: {
-   rollupOptions: {
-      input: {
-         app: resolve(pagesDir, "app", "index.html"),
-      },
-      output: {
-         entryFileNames: (chunk) => `src/pages/${chunk.name}/index.js`,
-      },
-   },
-}
-// ...
+1. 用户点击扩展图标，在弹窗中打开 Side Panel。
+2. Side Panel 发送任务给后台脚本。
+3. 后台脚本将任务转发给当前激活标签页的内容脚本。
+4. 内容脚本初始化 `PageAgentCore` 和 `PageController`，在页面中执行操作。
+5. 执行中的状态、步骤和结果实时回传到 Side Panel。
+
+录制模式下，扩展会监听点击、输入、下拉选择和滚动等行为，并将这些行为保存为结构化步骤。回放时，系统会把这些步骤转换成自然语言指令，再让 Agent 执行，从而提升对页面变化的适应性。
+
+## 快速开始
+
+### 环境要求
+
+- Node.js `18.17.1` 或更高
+- npm 或 yarn
+- 推荐使用 Chromium 浏览器进行开发和验证
+
+### 安装依赖
+
+```bash
+npm install
 ```
 
-#### Styling
-CSS files in the `src/pages/*` directories are not necessary. They are left in there in case you want 
-to use it in combination with Tailwind CSS. **Feel free to delete them**.
+或
 
-Tailwind can be configured, themed and extended according to the [docs](https://tailwindcss.com/docs/theme).
+```bash
+yarn
+```
 
-#### Internationalization (i18n)
-To enable internationalization set the `localize` flag in the `vite.config.base.ts` to `true`.
+### 本地开发
 
-The template includes a directory `locales` with a basic setup for english i18n. Enabling i18n
-will pull the name and description for your extension from the english translation files instead
-of the manifest.
+默认开发目标为 Chrome：
 
-Follow the instructions in the [official docs](https://developer.chrome.com/docs/extensions/reference/api/i18n#description) 
-to add other translations and retrieve them in the extension.
+```bash
+npm run dev
+```
 
-If you don't need i18n you can ignore the `locales` directory until you need it, as it won't
-be copied into the build folder unless the `localize` flag is set to `true`.
+也可以显式指定浏览器：
 
-### Publish your extension to the CWS<a name="publish"></a>
-To upload an extension to the Chrome store you have to pack (zip) it and then upload it to your item 
-in the Chrome Web Store.
+```bash
+npm run dev:chrome
+npm run dev:firefox
+```
 
-This repo includes a Github Action Workflow to create a 
-[optimized prod build and the zip file](https://github.com/JohnBra/vite-web-extension/actions/workflows/ci.yml).
+开发模式会持续监听文件变化，并刷新对应的构建产物目录。
 
-To run the workflow do the following:
-1. Go to the **"Actions"** tab in your forked repository from this template
-2. In the left sidebar click on **"Build and Zip Chrome Extension"**
-3. Click on **"Run Workflow"** and select the main branch, then **"Run Workflow"**
-4. Refresh the page and click the most recent run
-5. In the summary page **"Artifacts"** section click on the generated **"vite-web-extension-chrome"**
-6. Upload this file to the Chrome Web Store as described [here](https://developer.chrome.com/docs/webstore/publish/)
+### 生产构建
 
-# Tech Docs <a name="tech"></a>
-- [Vite](https://vitejs.dev/)
-- [Vite Plugins](https://vitejs.dev/guide/api-plugin.html)
-- [Chrome Extension with manifest 3](https://developer.chrome.com/docs/extensions/mv3/)
-- [Chrome Extension i18n](https://developer.chrome.com/docs/extensions/reference/api/i18n#description)
-- [Cross browser development with webextension-polyfill](https://github.com/mozilla/webextension-polyfill?tab=readme-ov-file#webextension-browser-api-polyfill)
-- [@crxjs/vite-plugin](https://crxjs.dev/vite-plugin)
-- [Rollup](https://rollupjs.org/guide/en/)
-- [Tailwind CSS 4](https://tailwindcss.com/docs/configuration)
+```bash
+npm run build
+```
 
-# Contributing <a name="contributing"></a>
-Feel free to open PRs or raise issues!
+或按浏览器分别构建：
+
+```bash
+npm run build:chrome
+npm run build:firefox
+```
+
+构建产物默认输出到：
+
+- `dist_chrome/`
+- `dist_firefox/`
+
+## 加载扩展
+
+### Chrome / Edge / Arc 等 Chromium 浏览器
+
+1. 打开 `chrome://extensions`
+2. 打开开发者模式
+3. 选择“加载已解压的扩展程序”
+4. 选择仓库中的 `dist_chrome` 目录
+
+### Firefox
+
+1. 打开 `about:debugging#/runtime/this-firefox`
+2. 选择“临时载入附加组件”
+3. 选择 `dist_firefox/manifest.json`
+
+说明：仓库保留了 Firefox 构建配置，但当前产品交互以 Chromium Side Panel 体验为主。若用于 Firefox，请结合目标版本自行验证侧边栏相关能力。
+
+## 首次配置
+
+扩展安装后，先在设置页中完成模型配置：
+
+- `Provider`：选择内置预设或自定义服务商
+- `Base URL`：模型服务地址
+- `API Key`：模型密钥
+- `Model`：模型名称
+- `Temperature`：生成温度
+- `Max Steps`：单次任务的最大执行步数
+
+当前内置预设包括：
+
+- `qwen-free`
+- `openai`
+- `deepseek`
+- `ollama`
+- `custom`
+
+所有配置都保存在浏览器 `chrome.storage.local` 中。
+
+## 使用说明
+
+### 通过自然语言执行任务
+
+在 Side Panel 中输入类似下面的指令：
+
+- `自动填写页面上的表单`
+- `阅读当前页面并总结重点`
+- `找到提交按钮并点击`
+- `滚动到页面底部`
+
+### 使用快捷指令
+
+扩展内置了几组快捷操作，也支持在设置页中自行新增、编辑和删除快捷指令。
+
+### 录制与回放
+
+1. 在 Side Panel 中点击录制按钮
+2. 在页面上完成一组操作
+3. 停止录制后，记录会保存到本地
+4. 在设置页中可重命名、删除或回放该记录
+
+## 权限说明
+
+当前扩展使用的主要权限：
+
+- `activeTab`：与当前活动标签页通信
+- `sidePanel`：打开浏览器侧边栏
+- `storage`：保存模型配置、偏好设置、快捷指令和录制记录
+- `content_scripts` 注入到网页：用于读取页面上下文并执行自动化操作
+
+## 开发说明
+
+### 主要页面入口
+
+- `src/pages/popup/index.tsx`
+- `src/pages/sidepanel/index.tsx`
+- `src/pages/options/index.tsx`
+- `src/pages/content/index.tsx`
+- `src/pages/background/index.ts`
+
+### 数据存储
+
+本地存储键定义在 `src/shared/storage.ts`：
+
+- `pa_llm_config`
+- `pa_preferences`
+- `pa_recordings`
+- `pa_quick_actions`
+
+### 国际化
+
+当前仓库内置两种语言：
+
+- `zh-CN`
+- `en-US`
+
+对应文案位于：
+
+- `src/shared/i18n/zh-CN.ts`
+- `src/shared/i18n/en-US.ts`
+
+## 当前实现特点
+
+- UI 入口完整：Popup、Side Panel、Options、Background、Content Script 都已接通
+- 执行链路清晰：Side Panel -> Background -> Content Script -> Agent
+- 录制回放不是硬编码 DOM 脚本重放，而是先转为自然语言步骤再执行
+- 模型接入方式灵活，适合接第三方兼容 OpenAI 协议的服务
+
+## 注意事项
+
+- `API Key` 当前保存在浏览器本地存储中，适合开发和个人使用场景；如果用于生产级分发，建议补充更严格的密钥管理策略
+- 内容脚本会注入网页环境，自动化能力依赖目标站点 DOM 结构、权限策略和 CSP 情况
+- 当前默认配置里带有测试型 Provider 预设，正式使用前建议替换为你自己的服务地址和模型配置
+
+## License
+
+[MIT](./LICENSE)

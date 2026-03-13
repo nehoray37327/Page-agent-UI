@@ -114,7 +114,7 @@ function describeAction(type: string, el: Element, value?: string): string {
     case 'select':
       return `Select "${value}" in "${label}"`
     case 'scroll':
-      return `Scroll page`
+      return `Scroll "${label}"`
     default:
       return `${type} on "${label}"`
   }
@@ -168,6 +168,28 @@ function handleChange(e: Event) {
   })
 }
 
+function handleScroll(e: Event) {
+  if (!isRecording) return
+  const target = e.target as HTMLElement | Document
+  const el = (target === document ? document.documentElement : target) as Element
+  if (!el) return
+
+  // Debounce scroll events
+  const last = actions[actions.length - 1]
+  if (last && last.type === 'scroll' && last.selector === generateSelector(el)) {
+    last.timestamp = Date.now() - startTime
+    return
+  }
+  
+  actions.push({
+    type: 'scroll',
+    selector: generateSelector(el),
+    elementDescription: describeElement(el),
+    timestamp: Date.now() - startTime,
+    description: describeAction('scroll', el),
+  })
+}
+
 export function startRecording() {
   isRecording = true
   actions = []
@@ -175,6 +197,7 @@ export function startRecording() {
   document.addEventListener('click', handleClick, true)
   document.addEventListener('input', handleInput, true)
   document.addEventListener('change', handleChange, true)
+  document.addEventListener('scroll', handleScroll, true)
 }
 
 export function stopRecording(): RecordedAction[] {
@@ -182,6 +205,7 @@ export function stopRecording(): RecordedAction[] {
   document.removeEventListener('click', handleClick, true)
   document.removeEventListener('input', handleInput, true)
   document.removeEventListener('change', handleChange, true)
+  document.removeEventListener('scroll', handleScroll, true)
   return [...actions]
 }
 

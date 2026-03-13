@@ -7,29 +7,36 @@ import {
   getRecordings,
   deleteRecording,
   updateRecording,
+  setQuickActions as saveQuickActionsToStorage,
 } from '../../../shared/storage'
 import {
   type LLMConfig,
   type Preferences,
   type Recording,
+  type QuickAction,
   PROVIDER_PRESETS,
   DEFAULT_LLM_CONFIG,
   DEFAULT_PREFERENCES,
+  DEFAULT_QUICK_ACTIONS,
 } from '../../../shared/types'
 import { setLocale, useT, type Locale } from '../../../shared/i18n'
 
 interface SettingsViewProps {
   language: Locale
+  quickActions: QuickAction[]
   onBack: () => void
   onLanguageChange: (locale: Locale) => void
   onConfigChange: (config: LLMConfig) => void
+  onQuickActionsChange: (actions: QuickAction[]) => void
 }
 
 export default function SettingsView({
   language,
+  quickActions,
   onBack,
   onLanguageChange,
   onConfigChange,
+  onQuickActionsChange,
 }: SettingsViewProps) {
   const [config, setConfig] = useState<LLMConfig>(DEFAULT_LLM_CONFIG)
   const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES)
@@ -38,7 +45,12 @@ export default function SettingsView({
   const [showApiKey, setShowApiKey] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [localActions, setLocalActions] = useState<QuickAction[]>(quickActions)
   const t = useT(language)
+
+  useEffect(() => {
+    setLocalActions(quickActions)
+  }, [quickActions])
 
   useEffect(() => {
     async function load() {
@@ -67,16 +79,19 @@ export default function SettingsView({
   const handleSave = useCallback(async () => {
     await setLLMConfig(config)
     await setPreferences(prefs)
+    await saveQuickActionsToStorage(localActions)
     setLocale(prefs.language)
     onLanguageChange(prefs.language)
     onConfigChange(config)
+    onQuickActionsChange(localActions)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
-  }, [config, prefs, onLanguageChange, onConfigChange])
+  }, [config, prefs, localActions, onLanguageChange, onConfigChange, onQuickActionsChange])
 
   const handleReset = useCallback(() => {
     setConfig({ ...DEFAULT_LLM_CONFIG })
     setPrefs({ ...DEFAULT_PREFERENCES })
+    setLocalActions(DEFAULT_QUICK_ACTIONS)
   }, [])
 
   const handleDeleteRecording = useCallback(async (id: string) => {
@@ -104,6 +119,28 @@ export default function SettingsView({
     }
     setEditingId(null)
   }, [editName])
+
+  const updateAction = useCallback((id: string, updates: Partial<QuickAction>) => {
+    setLocalActions((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)))
+  }, [])
+
+  const deleteAction = useCallback((id: string) => {
+    setLocalActions((prev) => prev.filter((a) => a.id !== id))
+  }, [])
+
+  const addAction = useCallback(() => {
+    const id = `action-${Date.now()}`
+    setLocalActions((prev) => [
+      ...prev,
+      {
+        id,
+        label: '指令名称',
+        labelEn: 'Cmd Name',
+        instruction: '执行操作',
+        instructionEn: 'Do something',
+      },
+    ])
+  }, [])
 
   return (
     <div className="settings-view">
@@ -236,6 +273,51 @@ export default function SettingsView({
               setConfig((p) => ({ ...p, maxSteps: parseInt(e.target.value) || 40 }))
             }
           />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="settings-section">
+          <h3 className="section-title">
+            <span>{t('quickActions')}</span>
+            <button className="s-add-btn" onClick={addAction}>+</button>
+          </h3>
+          <div className="s-actions-list">
+            {localActions.map((action) => (
+              <div key={action.id} className="s-action-item">
+                <div className="s-action-fields">
+                  <input
+                    className="s-input s-input-sm"
+                    value={language === 'zh-CN' ? action.label : action.labelEn}
+                    onChange={(e) =>
+                      updateAction(action.id, {
+                        [language === 'zh-CN' ? 'label' : 'labelEn']: e.target.value,
+                      })
+                    }
+                    placeholder="名称 / Name"
+                  />
+                  <input
+                    className="s-input s-input-sm"
+                    value={language === 'zh-CN' ? action.instruction : action.instructionEn}
+                    onChange={(e) =>
+                      updateAction(action.id, {
+                        [language === 'zh-CN' ? 'instruction' : 'instructionEn']: e.target.value,
+                      })
+                    }
+                    placeholder="指令 / Instruction"
+                  />
+                </div>
+                <button
+                  className="s-action-del"
+                  onClick={() => deleteAction(action.id)}
+                  title={t('delete')}
+                >
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" width="11" height="11">
+                    <path d="M4 4l6 6M10 4l-6 6" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Recordings */}

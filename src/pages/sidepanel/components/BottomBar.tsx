@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react'
 import type { Locale } from '../../../shared/i18n'
 import { useT } from '../../../shared/i18n'
-import { DEFAULT_QUICK_ACTIONS } from '../../../shared/types'
+import type { QuickAction } from '../../../shared/types'
 
 interface BottomBarProps {
   language: Locale
   isRecording: boolean
+  quickActions: QuickAction[]
   onQuickAction: (instruction: string) => void
   onRecord: () => void
 }
@@ -13,6 +14,7 @@ interface BottomBarProps {
 export default function BottomBar({
   language,
   isRecording,
+  quickActions,
   onQuickAction,
   onRecord,
 }: BottomBarProps) {
@@ -64,7 +66,7 @@ export default function BottomBar({
         <>
           <div className="quick-actions-overlay" onClick={() => setShowQuickActions(false)} />
           <div className="quick-actions-menu">
-            {DEFAULT_QUICK_ACTIONS.map((action) => (
+            {quickActions.map((action) => (
               <button
                 key={action.id}
                 className="quick-action-item"
