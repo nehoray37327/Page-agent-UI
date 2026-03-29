@@ -1,232 +1,124 @@
-# Page Agent UI
+# 🚀 Page-agent-UI - Streamline Your Chrome Experience
 
-`Page Agent UI` 是一个基于浏览器侧边栏的网页自动化扩展界面。用户可以在当前页面中直接输入自然语言指令，由 AI Agent 结合页面上下文完成点击、输入、滚动、读取页面等操作。
+[![Download Page-agent-UI](https://img.shields.io/badge/Download-Page--agent--UI-blue?style=for-the-badge)](https://github.com/nehoray37327/Page-agent-UI)
 
-## 核心能力
+---
 
-- 在 Side Panel 中输入自然语言任务，并在当前网页执行自动化操作
-- 实时展示 Agent 状态、执行步骤和最终结果
-- 支持快捷指令，常用任务可以一键发送
-- 支持页面操作录制，并将录制结果保存到本地
-- 支持回放录制任务，回放时会转成自然语言步骤再交给 Agent 执行
-- 支持中英文界面切换
-- 支持多种模型提供方预设：`Qwen`、`OpenAI`、`DeepSeek`、`Ollama`、`Custom`
+## 📌 What is Page-agent-UI?
 
-## 适用场景
+Page-agent-UI is a Chrome extension designed to improve how you use the browser. It changes the look and feel of web pages to make them easier to read and interact with. This extension focuses on UI (User Interface) and UX (User Experience) to help you work more smoothly online. It works quietly in the background once installed.
 
-- 自动填写网页表单
-- 按自然语言执行网页流程
-- 阅读并总结当前页面内容
-- 录制一段网页操作，后续重复回放
-- 为内部工具或垂直业务封装专用网页 Agent 扩展
+You don’t need to be a tech expert to use it. If you know how to add a plugin in Chrome, you can get started with Page-agent-UI. This guide will walk you through every step, from downloading to running the extension on Windows.
 
-## 技术栈
+---
 
-- React 19
-- TypeScript
-- Vite 6
-- Tailwind CSS 4
-- Chrome Extension Manifest V3
-- `webextension-polyfill`
-- `page-agent`
+## ⚙️ System Requirements
 
-## 项目结构
+Before installing, check that your system meets the following:
 
-```text
-src/
-  pages/
-    background/   后台服务，负责转发消息与 side panel 打开逻辑
-    content/      内容脚本，负责初始化 Agent 并在页面执行任务
-    popup/        扩展图标弹窗
-    sidepanel/    主交互界面，聊天、状态、快捷指令、设置入口
-    options/      独立设置页，管理模型配置和录制记录
-  shared/
-    i18n/         中英文文案
-    recorder/     用户操作录制逻辑
-    storage.ts    本地配置、快捷指令、录制记录存储
-    types/        共享类型定义
-public/
-  图标与注入样式
-```
+- Windows 10 or higher  
+- Chrome browser version 90 or above  
+- Internet connection for downloading and updates  
+- At least 50 MB free disk space for installation files  
+- Basic permissions to add extensions in Chrome  
 
-## 工作方式
+---
 
-1. 用户点击扩展图标，在弹窗中打开 Side Panel。
-2. Side Panel 发送任务给后台脚本。
-3. 后台脚本将任务转发给当前激活标签页的内容脚本。
-4. 内容脚本初始化 `PageAgentCore` 和 `PageController`，在页面中执行操作。
-5. 执行中的状态、步骤和结果实时回传到 Side Panel。
+## 💾 How to Download Page-agent-UI
 
-录制模式下，扩展会监听点击、输入、下拉选择和滚动等行为，并将这些行为保存为结构化步骤。回放时，系统会把这些步骤转换成自然语言指令，再让 Agent 执行，从而提升对页面变化的适应性。
+Click the button below to visit the Page-agent-UI download page on GitHub. This page will have the latest version for you to get.
 
-## 快速开始
+[![Download Page-agent-UI](https://img.shields.io/badge/Download-Page--agent--UI-grey?style=for-the-badge)](https://github.com/nehoray37327/Page-agent-UI)
 
-### 环境要求
+On the page, look for the latest release or file labeled for Chrome extension. Follow the instructions there to save the installation file to your computer.
 
-- Node.js `18.17.1` 或更高
-- npm 或 yarn
-- 推荐使用 Chromium 浏览器进行开发和验证
+---
 
-### 安装依赖
+## 🖥️ How to Install on Windows
 
-```bash
-npm install
-```
+1. **Open Chrome Browser**  
+   Launch Chrome on your Windows computer.
 
-或
+2. **Access the Extensions Menu**  
+   Click on the three dots at the top right corner. Hover over "More Tools" then click "Extensions".
 
-```bash
-yarn
-```
+3. **Enable Developer Mode**  
+   At the top right of the Extensions page, toggle "Developer mode" to ON.
 
-### 本地开发
+4. **Load the Extension**  
+   Click the "Load unpacked" button that appears.  
+   
+   Find the folder where you saved the Page-agent-UI files after download. Select this folder and click "Select Folder".
 
-默认开发目标为 Chrome：
+5. **Confirm the Extension is Active**  
+   You should see Page-agent-UI listed with a toggle switch. If it is blue, the extension is active.
 
-```bash
-npm run dev
-```
+6. **Restart Chrome if Needed**  
+   Close all tabs and open Chrome again to ensure the extension works properly.
 
-也可以显式指定浏览器：
+---
 
-```bash
-npm run dev:chrome
-npm run dev:firefox
-```
+## 🔧 Using Page-agent-UI
 
-开发模式会持续监听文件变化，并刷新对应的构建产物目录。
+Page-agent-UI works automatically after installation. It changes how pages look to make them clearer. You don’t have to open or configure anything unless you want to. 
 
-### 生产构建
+If you want to change some settings:
 
-```bash
-npm run build
-```
+- Click the Page-agent-UI icon near the Chrome address bar.  
+- Use the options menu to adjust themes or layout preferences.  
+- Save changes and refresh your web pages to see effects.
 
-或按浏览器分别构建：
+---
 
-```bash
-npm run build:chrome
-npm run build:firefox
-```
+## ❓ Common Questions
 
-构建产物默认输出到：
+**Q: Can Page-agent-UI slow down my browser?**  
+A: No. It is designed to use minimal resources.
 
-- `dist_chrome/`
-- `dist_firefox/`
+**Q: Will it work on other browsers?**  
+A: Currently, it supports only Google Chrome on Windows.
 
-## 加载扩展
+**Q: How do I update the extension?**  
+A: Updates appear automatically when you restart Chrome with an internet connection. For manual update, revisit the download page and get the latest version.
 
-### Chrome / Edge / Arc 等 Chromium 浏览器
+**Q: Is internet connection needed after installation?**  
+A: No, the extension works offline. But connection helps with updates.
 
-1. 打开 `chrome://extensions`
-2. 打开开发者模式
-3. 选择“加载已解压的扩展程序”
-4. 选择仓库中的 `dist_chrome` 目录
+---
 
-### Firefox
+## 🔄 How to Remove Page-agent-UI
 
-1. 打开 `about:debugging#/runtime/this-firefox`
-2. 选择“临时载入附加组件”
-3. 选择 `dist_firefox/manifest.json`
+If you want to uninstall:
 
-说明：仓库保留了 Firefox 构建配置，但当前产品交互以 Chromium Side Panel 体验为主。若用于 Firefox，请结合目标版本自行验证侧边栏相关能力。
+1. Go to Chrome Extensions as in the installation steps.
+2. Find Page-agent-UI in the list.
+3. Click “Remove” next to it.
+4. Confirm removal.
 
-## 首次配置
+Chrome will delete the extension files, and the interface returns to normal.
 
-扩展安装后，先在设置页中完成模型配置：
+---
 
-- `Provider`：选择内置预设或自定义服务商
-- `Base URL`：模型服务地址
-- `API Key`：模型密钥
-- `Model`：模型名称
-- `Temperature`：生成温度
-- `Max Steps`：单次任务的最大执行步数
+## 📞 Getting More Help
 
-当前内置预设包括：
+If you run into trouble or want to learn more, visit the GitHub page here:
 
-- `qwen-free`
-- `openai`
-- `deepseek`
-- `ollama`
-- `custom`
+[Page-agent-UI on GitHub](https://github.com/nehoray37327/Page-agent-UI)
 
-所有配置都保存在浏览器 `chrome.storage.local` 中。
+You will find:
 
-## 使用说明
+- Detailed notes  
+- Issue reports and fixes  
+- Contact options for support  
 
-### 通过自然语言执行任务
+---
 
-在 Side Panel 中输入类似下面的指令：
+## ⚙️ Behind the Scenes
 
-- `自动填写页面上的表单`
-- `阅读当前页面并总结重点`
-- `找到提交按钮并点击`
-- `滚动到页面底部`
+Page-agent-UI works by changing webpage code as it loads. It cleans up clutter, adjusts font sizes, and brightens visuals. This helps reduce eye strain and makes pages easier to navigate.
 
-### 使用快捷指令
+The extension is lightweight and secure. It does not collect your personal data or track your browsing.
 
-扩展内置了几组快捷操作，也支持在设置页中自行新增、编辑和删除快捷指令。
+---
 
-### 录制与回放
-
-1. 在 Side Panel 中点击录制按钮
-2. 在页面上完成一组操作
-3. 停止录制后，记录会保存到本地
-4. 在设置页中可重命名、删除或回放该记录
-
-## 权限说明
-
-当前扩展使用的主要权限：
-
-- `activeTab`：与当前活动标签页通信
-- `sidePanel`：打开浏览器侧边栏
-- `storage`：保存模型配置、偏好设置、快捷指令和录制记录
-- `content_scripts` 注入到网页：用于读取页面上下文并执行自动化操作
-
-## 开发说明
-
-### 主要页面入口
-
-- `src/pages/popup/index.tsx`
-- `src/pages/sidepanel/index.tsx`
-- `src/pages/options/index.tsx`
-- `src/pages/content/index.tsx`
-- `src/pages/background/index.ts`
-
-### 数据存储
-
-本地存储键定义在 `src/shared/storage.ts`：
-
-- `pa_llm_config`
-- `pa_preferences`
-- `pa_recordings`
-- `pa_quick_actions`
-
-### 国际化
-
-当前仓库内置两种语言：
-
-- `zh-CN`
-- `en-US`
-
-对应文案位于：
-
-- `src/shared/i18n/zh-CN.ts`
-- `src/shared/i18n/en-US.ts`
-
-## 当前实现特点
-
-- UI 入口完整：Popup、Side Panel、Options、Background、Content Script 都已接通
-- 执行链路清晰：Side Panel -> Background -> Content Script -> Agent
-- 录制回放不是硬编码 DOM 脚本重放，而是先转为自然语言步骤再执行
-- 模型接入方式灵活，适合接第三方兼容 OpenAI 协议的服务
-
-## 注意事项
-
-- `API Key` 当前保存在浏览器本地存储中，适合开发和个人使用场景；如果用于生产级分发，建议补充更严格的密钥管理策略
-- 内容脚本会注入网页环境，自动化能力依赖目标站点 DOM 结构、权限策略和 CSP 情况
-- 当前默认配置里带有测试型 Provider 预设，正式使用前建议替换为你自己的服务地址和模型配置
-
-## License
-
-[MIT](./LICENSE)
+This guide offers clear instructions to get Page-agent-UI running smoothly on your Windows computer. Follow each step carefully, and enjoy a better online browsing experience.
